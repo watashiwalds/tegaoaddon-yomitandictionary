@@ -4,9 +4,14 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import com.tegaoteam.addon.tegao.yomitandictionary.database.DictionaryDatabase
 import com.tegaoteam.addon.tegao.yomitandictionary.query.DatabaseQueryCentre
 
 class LookupService : Service() {
+    init {
+        AddonApplication()
+    }
+
     private var trustedUid: Int? = null
     private var trustedPackageName = AddonApplication.parentPackage
     private fun firstVerify(callingUid: Int) {
@@ -19,17 +24,17 @@ class LookupService : Service() {
 
     private val binder = object: ILookupService.Stub() {
         override fun requestLookupResult(type: Int, keyword: String?) {
-            Log.i("RecognitionService", "Received request to suggesting by array ${keyword?.length}")
+            Log.i("LookupService", "Received request to lookup by keyword $keyword")
             val callingUid = getCallingUid()
             if (trustedUid == null) firstVerify(callingUid)
             if (callingUid != trustedUid) lookupCallback?.onResult(null)
-            Log.i("RecognitionService", "Request confirmed by trusted package")
+            Log.i("LookupService", "Request confirmed by trusted package")
 
-            lookupCallback?.onResult(DatabaseQueryCentre.instance.lookup(type, keyword))
+            lookupCallback?.onResult(DatabaseQueryCentre.instance.lookup(this@LookupService, type, keyword))
         }
 
         override fun registerCallback(callback: ILookupCallback) {
-            Log.i("RecognitionService", "Request to register callback $callback")
+            Log.i("LookupService", "Request to register callback $callback")
             val callingUid = getCallingUid()
             if (trustedUid == null) firstVerify(callingUid)
             if (callingUid != trustedUid) return
@@ -41,6 +46,7 @@ class LookupService : Service() {
     override fun onCreate() {
         super.onCreate()
         Log.i("LookupService", "Service created")
+        DictionaryDatabase.getInstance(this)
     }
 
     override fun onBind(intent: Intent): IBinder {

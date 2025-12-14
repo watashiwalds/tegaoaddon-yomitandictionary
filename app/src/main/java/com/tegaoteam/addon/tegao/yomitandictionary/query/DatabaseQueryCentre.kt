@@ -6,6 +6,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.tegaoteam.addon.tegao.yomitandictionary.database.DictionaryDAO
 import com.tegaoteam.addon.tegao.yomitandictionary.database.DictionaryDatabase
+import com.tegaoteam.addon.tegao.yomitandictionary.query.model.Kanji
 
 class DatabaseQueryCentre private constructor() {
     companion object {
@@ -25,7 +26,7 @@ class DatabaseQueryCentre private constructor() {
 
         //Kanji
         if (type == 1) {
-            val kanjis = _kanjiQuery.searchKanjis(keyword?: "")
+            val kanjis = _kanjiQuery.searchKanjis(keyword?: "").map { Kanji.toReturnKanji(it) }
             val json = gson.toJson(kanjis)
             return "$json"
         }

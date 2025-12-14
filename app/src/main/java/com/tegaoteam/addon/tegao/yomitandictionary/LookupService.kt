@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import com.tegaoteam.addon.tegao.yomitandictionary.query.DatabaseQueryCentre
 
 class LookupService : Service() {
     private var trustedUid: Int? = null
@@ -23,6 +24,8 @@ class LookupService : Service() {
             if (trustedUid == null) firstVerify(callingUid)
             if (callingUid != trustedUid) lookupCallback?.onResult(null)
             Log.i("RecognitionService", "Request confirmed by trusted package")
+
+            lookupCallback?.onResult(DatabaseQueryCentre.instance.lookup(type, keyword))
         }
 
         override fun registerCallback(callback: ILookupCallback) {

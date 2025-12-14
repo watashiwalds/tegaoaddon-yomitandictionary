@@ -2,29 +2,31 @@ package com.tegaoteam.addon.tegao.yomitandictionary.query
 
 import com.tegaoteam.addon.tegao.yomitandictionary.database.DictionaryDAO
 import com.tegaoteam.addon.tegao.yomitandictionary.database.tables.Kanjis
+import com.tegaoteam.addon.tegao.yomitandictionary.query.model.Kanji
 
 class KanjiQuery(private val _db: DictionaryDAO) {
-    fun searchKanjis(keyword: String): List<Kanjis> {
+    fun searchKanjis(keyword: String): List<Kanji> {
         val strippedKeyword = yomiChecker(keyword)
-        when (keywordType) {
+        var resKanjis: List<Kanjis> = when (keywordType) {
             TYPE_KANJI -> {
                 val kanjiList = strippedKeyword.toList().map { char -> char.toString() }
-                return _db.searchKanjiByChar(kanjiList)
+                _db.searchKanjiByChar(kanjiList)
             }
             TYPE_KUN -> {
-                return _db.searchKanjiByKun("%$keyword%")
+                _db.searchKanjiByKun("%$keyword%")
             }
             TYPE_ON -> {
-                return _db.searchKanjiByOn("%$keyword%")
+                _db.searchKanjiByOn("%$keyword%")
             }
-            else -> return listOf()
+            else -> listOf()
         }
+        return resKanjis.map { Kanji.toReturnKanji(it) }
     }
 
     private var keywordType: Int = 0
     private fun yomiChecker(keyword: String): String {
-        var kun = StringBuilder()
-        var on = StringBuilder()
+        val kun = StringBuilder()
+        val on = StringBuilder()
         val kan = StringBuilder()
         keyword.toList().forEach { char ->
             if (ConstValue.HIRAGANAS.contains(char)) kun.append(char)

@@ -22,13 +22,14 @@ data class Word(
 
         data class ExpandInfo(
             val termKey: String,
-            val content: String
+            val content: String,
         )
     }
 
     data class Tag(
         val termKey: String,
-        val label: String
+        val label: String,
+        val description: String? = null
     )
 
     data class AdditionalInfo(

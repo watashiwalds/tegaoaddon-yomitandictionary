@@ -15,6 +15,7 @@ class DatabaseQueryCentre private constructor() {
 
     private lateinit var _db: DictionaryDAO
     private lateinit var _kanjiQuery: KanjiQuery
+    private lateinit var _wordQuery: WordQuery
 
     private val gson = Gson()
 
@@ -22,19 +23,23 @@ class DatabaseQueryCentre private constructor() {
         if (!::_db.isInitialized) {
             _db = DictionaryDatabase.getInstance(context)._dictionaryDao
             _kanjiQuery = KanjiQuery(_db)
+            _wordQuery = WordQuery(_db)
         }
 
-        //Kanji
-        if (type == 1) {
-            val kanjis = _kanjiQuery.searchKanjis(keyword?: "").map { Kanji.toReturnKanji(it) }
-            val json = gson.toJson(kanjis)
-            return "$json"
+        when (type) {
+            //Word type = 0
+            0 -> {
+                val wordRes = _wordQuery.searchWords(keyword?: "")
+                val json = gson.toJson(wordRes)
+                return "$json"
+            }
+            //Kanji type = 1
+            1 -> {
+                val kanjiRes = _kanjiQuery.searchKanjis(keyword?: "")
+                val json = gson.toJson(kanjiRes)
+                return "$json"
+            }
+            else -> return ""
         }
-
-        val resJson = JsonObject()
-        resJson.addProperty("success", true)
-        resJson.addProperty("result", "Addon return: $type $keyword")
-        val resString = resJson.toString()
-        return resString
     }
 }

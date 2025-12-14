@@ -17,8 +17,8 @@ class LookupService : Service() {
     private var lookupCallback: ILookupCallback? = null
 
     private val binder = object: ILookupService.Stub() {
-        override fun requestLookupResult(input: String?) {
-            Log.i("RecognitionService", "Received request to suggesting by array ${input?.length}")
+        override fun requestLookupResult(type: Int, keyword: String?) {
+            Log.i("RecognitionService", "Received request to suggesting by array ${keyword?.length}")
             val callingUid = getCallingUid()
             if (trustedUid == null) firstVerify(callingUid)
             if (callingUid != trustedUid) lookupCallback?.onResult(null)
